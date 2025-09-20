@@ -27,9 +27,7 @@ export default function Labs() {
             </Link>
           </li>
             <li>
-            <a href="/" id="wd-kambaz-link">
-                Kambaz (app)
-            </a>
+            <Link href="/" id="wd-kambaz-link">Kambaz (app)</Link>
             </li>
           <li>
             {}
