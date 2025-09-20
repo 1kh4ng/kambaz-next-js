@@ -1,10 +1,11 @@
+"use client";
+
 export default function Lab1() {
   return (
     <div id="wd-lab1">
       <h2>Lab 1</h2>
       <h3>HTML Examples</h3>
 
-      {/* 1) Heading tags */}
       <div id="wd-h-tag">
         <h4>Heading Tags</h4>
         <h1>Heading 1</h1>
@@ -15,208 +16,228 @@ export default function Lab1() {
         <h6>Heading 6</h6>
       </div>
 
-      {/* 2) Paragraphs */}
-      <div id="wd-p-tag">
-        <h4>Paragraphs</h4>
-        <p>
-          This is a paragraph of text demonstrating how browsers render block
-          content with default spacing and line wrapping.
-        </p>
-        <p>
-          Another paragraph, to show separation between consecutive blocks of
-          text with no extra styling applied.
-        </p>
-      </div>
+<div id="wd-p-tag">
+  <h4>Paragraph Tag</h4>
+  <p id="wd-p-1">
+    This is a paragraph. We often separate a long set
+    of sentences with vertical spaces to make the text
+    easier to read. Browsers ignore vertical white
+    spaces and render all the text as one single set
+    of sentences. To force the browser to add vertical
+    spacing, wrap the paragraphs you want to separate
+    with the paragraph tag
+  </p>
+  <p id="wd-p-2">
+    This is the first paragraph. The paragraph tag is used to format
+    vertical gaps between long pieces of text like this one.
+  </p>
+  <p id="wd-p-3">
+    This is the second paragraph. Even though there is a deliberate white
+    gap between the paragraph above and this paragraph, by default
+    browsers render them as one contiguous piece of text as shown here on
+    the right.
+  </p>
+  <p id="wd-p-4">
+    This is the third paragraph. Wrap each paragraph with the paragraph
+    tag to tell browsers to render the gaps.
+  </p>
+</div>
 
-      {/* 3) Lists */}
-      <div id="wd-lists">
-        <h4>Lists</h4>
 
-        <h5>Ordered List Elements</h5>
-        <ol>
-          <li>First item</li>
-          <li>Second item</li>
-          <li>Third item</li>
-        </ol>
+<div id="wd-lists">
+  <h4>List Tags</h4>
 
-        <h5>My favorite recipe</h5>
-        <ol>
-          <li>Preheat oven to 400°F (204°C)</li>
-          <li>Mix flour, salt, and baking powder</li>
-          <li>Add butter and milk, stir until combined</li>
-          <li>Scoop onto tray and bake 12–15 minutes</li>
-        </ol>
+  <h5>Ordered List Tag</h5>
+  How to make pancakes:
+  <ol id="wd-pancakes">
+    <li>Mix dry ingredients.</li>
+    <li>Add wet ingredients.</li>
+    <li>Stir to combine.</li>
+    <li>Heat a skillet or griddle.</li>
+    <li>Pour batter onto the skillet.</li>
+    <li>Cook until bubbly on top.</li>
+    <li>Flip and cook the other side.</li>
+    <li>Serve and enjoy!</li>
+  </ol>
 
-        <h5>Unordered List Elements</h5>
-        <ul>
-          <li>Apples</li>
-          <li>Bananas</li>
-          <li>Grapes</li>
-        </ul>
+  My favorite recipe:
+  <ol id="wd-your-favorite-recipe">
+    <li>Heat oil in a pan</li>
+    <li>(I like to throw in some garlic and pepper flakes before I)</li>
+    <li>Crack 2 to 3 eggs into the pan</li>
+    <li>Tilt the pan, as the !hot! oil pools, use a spoon to carry the oil over the yolks</li>
+    <li>Once cooked your desire doneness, remove the pan from the heat</li>
+    <li>Serve over white rice with siracha, sesame oil, black pepper, or whatever your desires</li>
+  </ol>
 
-        <h5>Your favorite books</h5>
-        <ul>
-          <li>Norwegian Wood — Haruki Murakami</li>
-          <li>The Left Hand of Darkness — Ursula K. Le Guin</li>
-          <li>Godel, Escher, Bach — Douglas Hofstadter</li>
-        </ul>
-      </div>
+  <h5>Unordered List Tag</h5>
+  My favorite books (in no particular order)
+  <ul id="wd-my-books">
+    <li>Dune</li>
+    <li>Lord of the Rings</li>
+    <li>Ender's Game</li>
+    <li>Red Mars</li>
+    <li>The Forever War</li>
+  </ul>
 
-      {/* 4) Tables (Q3–Q10: make up dates/scores) */}
-      <div id="wd-tables">
-        <h4>Tables</h4>
+  Your favorite books (in no particular order)
+  <ul id="wd-your-books">
+    <li>The Myth of Sisyphus by Albert Camus</li>
+    <li>House of Leaves by Mark Z. Danielewski</li>
+    <li>The History of Sexuality by Michel Foucault</li>
+  </ul>
+</div>
 
-        <table border={1} width="100%">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Topic</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>2025-09-01</td>
-              <td>HTML Basics</td>
-              <td>95</td>
-            </tr>
-            <tr>
-              <td>2025-09-03</td>
-              <td>Lists &amp; Tables</td>
-              <td>88</td>
-            </tr>
-            <tr>
-              <td>2025-09-05</td>
-              <td>Images &amp; Forms</td>
-              <td>92</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={3}>Q3–Q10 examples summarized</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
 
-      {/* 5) Images (Starship remote + Teslabot local) */}
-      <div id="wd-images">
-        <h4>Images</h4>
+<div id="wd-tables">
+  <h4>Table Tag</h4>
+  <table border={1} width="100%">
+    <thead>
+      <tr>
+        <th>Quiz</th>
+        <th>Topic</th>
+        <th>Date</th>
+        <th>Grade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Q1</td>
+        <td>HTML</td>
+        <td>2/3/21</td>
+        <td>85</td>
+      </tr>
+      <tr>
+        <td>Q2</td>
+        <td>CSS</td>
+        <td>2/10/21</td>
+        <td>90</td>
+      </tr>
+      {/* Add Q3–Q10 with your own dates & grades */}
+      <tr><td>Q3</td><td>JavaScript</td><td>2/17/21</td><td>95</td></tr>
+      <tr><td>Q4</td><td>React</td><td>2/24/21</td><td>92</td></tr>
+      <tr><td>Q5</td><td>Next.js</td><td>3/03/21</td><td>98</td></tr>
+      <tr><td>Q6</td><td>Node</td><td>3/10/21</td><td>93</td></tr>
+      <tr><td>Q7</td><td>Express</td><td>3/17/21</td><td>97</td></tr>
+      <tr><td>Q8</td><td>MongoDB</td><td>3/24/21</td><td>96</td></tr>
+      <tr><td>Q9</td><td>API</td><td>3/31/21</td><td>94</td></tr>
+      <tr><td>Q10</td><td>Full Stack</td><td>4/07/21</td><td>99</td></tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colSpan={3}>Average</td>
+        <td>90</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
 
-        <h5>Starship (remote)</h5>
-        <img
-          id="wd-starship"
-          alt="SpaceX Starship"
-          width="400"
-          src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Starship_SN9_high-altitude_flight_test_%28cropped%29.jpg"
-        />
 
-        <h5>Teslabot (local)</h5>
-        {/* place /public/images/teslabot.jpg in your project */}
-        <img
-          id="wd-teslabot"
-          alt="Teslabot"
-          width="400"
-          src="/images/teslabot.jpg"
-        />
-      </div>
+    <div id="wd-images">
+        <h4>Image tag</h4>
+        Loading an image from the internet: <br />
+        <img id="wd-starship" width="400px"
+            src="https://www.staradvertiser.com/wp-content/uploads/2021/08/web1_Starship-gap2.jpg" />
+        <br />
+        Loading a local image:
+        <br />
+        <img id="wd-teslabot" src="/images/teslabot.jpg" height="200px" />
+    </div>
 
-      {/* 6) Forms */}
-      <div id="wd-forms">
-        <h4>Forms</h4>
+<div id="wd-forms">
+  <h4>Form Elements</h4>
+  <form id="wd-text-fields">
+    <h5>Text Fields</h5>
+    <label htmlFor="wd-text-fields-username">Username:</label>
+    <input placeholder="jdoe" id="wd-text-fields-username" /> <br />
+    <label htmlFor="wd-text-fields-password">Password:</label>
+    <input type="password" defaultValue="123@#$asd" id="wd-text-fields-password" /><br />
+    <label htmlFor="wd-text-fields-first-name">First name:</label>
+    <input type="text" title="John" id="wd-text-fields-first-name" /> <br />
+    <label htmlFor="wd-text-fields-last-name">Last name:</label>
+    <input type="text" placeholder="Doe" defaultValue="Wonderland" title="The last name" id="wd-text-fields-last-name" />
 
-        <div>
-          <label htmlFor="wd-username">Username</label><br />
-          <input id="wd-username" type="text" placeholder="jdoe" defaultValue="khang" />
-        </div>
+    <h5>Text boxes</h5>
+    <label>Biography:</label><br/>
+        <textarea id="wd-textarea" cols={30} rows={10} defaultValue={
+            `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+            ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+            consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+            cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        `}/>
 
-        <div>
-          <label htmlFor="wd-password">Password</label><br />
-          <input id="wd-password" type="password" defaultValue="123456" />
-        </div>
+    <h5 id="wd-buttons">Buttons</h5>
+    <button type="button" onClick={() => alert("Life is Good!")} id="wd-all-good">
+      Hello World!
+    </button>
 
-        <div>
-          <label htmlFor="wd-first-name">First Name</label><br />
-          <input id="wd-first-name" type="text" defaultValue="Khang" />
-        </div>
+    <h5 id="wd-radio-buttons">Radio buttons</h5>
+    <label>Favorite movie genre:</label><br />
+    <input type="radio" name="radio-genre" id="wd-radio-comedy"/><label htmlFor="wd-radio-comedy">Comedy</label><br />
+    <input type="radio" name="radio-genre" id="wd-radio-drama"/><label htmlFor="wd-radio-drama">Drama</label><br />
+    <input type="radio" name="radio-genre" id="wd-radio-scifi"/><label htmlFor="wd-radio-scifi">Science Fiction</label><br />
+    <input type="radio" name="radio-genre" id="wd-radio-fantasy"/><label htmlFor="wd-radio-fantasy">Fantasy</label>
 
-        <div>
-          <label htmlFor="wd-last-name">Last Name</label><br />
-          <input id="wd-last-name" type="text" defaultValue="Pham" />
-        </div>
+    <h5 id="wd-checkboxes">Checkboxes</h5>
+    <label>Favorite movie genre:</label><br/>
+    <input type="checkbox" name="check-genre" id="wd-chkbox-comedy"/><label htmlFor="wd-chkbox-comedy">Comedy</label><br/>
+    <input type="checkbox" name="check-genre" id="wd-chkbox-drama"/><label htmlFor="wd-chkbox-drama">Drama</label><br/>
+    <input type="checkbox" name="check-genre" id="wd-chkbox-scifi"/><label htmlFor="wd-chkbox-scifi">Science Fiction</label><br/>
+    <input type="checkbox" name="check-genre" id="wd-chkbox-fantasy"/><label htmlFor="wd-chkbox-fantasy">Fantasy</label>
 
-        <div>
-          <label htmlFor="wd-bio">About you</label><br />
-          <textarea id="wd-bio" rows={3} placeholder="Tell us a bit..." />
-        </div>
+    <h4 id="wd-dropdowns">Dropdowns</h4>
+    <h5>Select one</h5>
+    <label htmlFor="wd-select-one-genre"> Favorite movie genre: </label><br/>
+    <select id="wd-select-one-genre">
+      <option value="COMEDY">Comedy</option>
+      <option value="DRAMA">Drama</option>
+      <option selected value="SCIFI">Science Fiction</option>
+      <option value="FANTASY">Fantasy</option>
+    </select>
 
-        <fieldset>
-          <legend>Favorite Genres (radio)</legend>
-          <label><input name="genre" type="radio" defaultChecked /> Comedy</label><br />
-          <label><input name="genre" type="radio" /> Drama</label><br />
-          <label><input name="genre" type="radio" /> SciFi</label><br />
-          <label><input name="genre" type="radio" /> Fantasy</label>
-        </fieldset>
+    <h5>Select many</h5>
+    <label htmlFor="wd-select-many-genre"> Favorite movie genres: </label><br/>
+    <select multiple id="wd-select-many-genre">
+      <option value="COMEDY" selected> Comedy </option>
+      <option value="DRAMA"> Drama </option>
+      <option value="SCIFI" selected> Science Fiction </option>
+      <option value="FANTASY"> Fantasy </option>
+    </select>
 
-        <fieldset>
-          <legend>Favorite Genres (checkbox)</legend>
-          <label><input type="checkbox" defaultChecked /> Comedy</label><br />
-          <label><input type="checkbox" /> Drama</label><br />
-          <label><input type="checkbox" /> SciFi</label><br />
-          <label><input type="checkbox" /> Fantasy</label>
-        </fieldset>
+    <h4>Other HTML field types</h4>
+    <label htmlFor="wd-text-fields-email"> Email: </label>
+    <input type="email" placeholder="jdoe@somewhere.com" id="wd-text-fields-email"/><br/>
 
-        <div>
-          <label htmlFor="wd-select-one">Select one option</label><br />
-          <select id="wd-select-one" defaultValue="b">
-            <option value="a">Option A</option>
-            <option value="b">Option B</option>
-            <option value="c">Option C</option>
-          </select>
-        </div>
+    <label htmlFor="wd-text-fields-salary-start"> Starting salary:</label>
+    <input type="number" defaultValue="100000" placeholder="1000" id="wd-text-fields-salary-start"/><br/>
 
-        <div>
-          <label htmlFor="wd-select-many">Select many options</label><br />
-          <select id="wd-select-many" multiple defaultValue={["x","z"]}>
-            <option value="x">Choice X</option>
-            <option value="y">Choice Y</option>
-            <option value="z">Choice Z</option>
-          </select>
-        </div>
+    <label htmlFor="wd-text-fields-rating"> Rating: </label>
+    <input type="range" defaultValue="4" max="5" placeholder="Doe" id="wd-text-fields-rating"/><br/>
 
-        <div>
-          <label htmlFor="wd-email">Email</label><br />
-          <input id="wd-email" type="email" defaultValue="khang@example.com" />
-        </div>
+    <label htmlFor="wd-text-fields-dob"> Date of birth: </label>
+    <input type="date" defaultValue="2000-01-21" id="wd-text-fields-dob"/><br/>
+  </form>
+</div>
 
-        <div>
-          <label htmlFor="wd-salary">Salary</label><br />
-          <input id="wd-salary" type="number" defaultValue={90000} />
-        </div>
 
-        <div>
-          <label htmlFor="wd-rating">Rating</label><br />
-          <input id="wd-rating" type="range" min={0} max={10} defaultValue={7} />
-        </div>
+    <div id="wd-anchors">
+        <h4>Anchor tag</h4>
+        Please{" "}
+        <a href="https://www.lipsum.com" id="wd-lipsum" target="_blank" rel="noreferrer">
+            click here
+        </a>{" "}
+        to get dummy text.
+    </div>
 
-        <div>
-          <label htmlFor="wd-dob">Date of Birth</label><br />
-          <input id="wd-dob" type="date" defaultValue="2002-07-15" />
-        </div>
-      </div>
+    <a
+        id="wd-github"
+        href="https://github.com/1kh4ng/kambaz-next-js"
+        target="_blank"
+        rel="noreferrer"
+    >
+        Source on GitHub
+    </a>
 
-      {/* 7) Anchor Tag */}
-      <div id="wd-anchors">
-        <h4>Anchor Tag</h4>
-        <p>
-          Here is some text with a link to{" "}
-          <a id="wd-anchor-example" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a" target="_blank" rel="noreferrer">
-            MDN’s &lt;a&gt; element
-          </a>.
-        </p>
-      </div>
-
-      {/* 8) SPA Navigation (links already exist via /Labs and TOC) */}
       <div id="wd-navigation">
         <h4>Navigation</h4>
         <p>

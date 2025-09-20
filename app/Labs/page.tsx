@@ -8,7 +8,7 @@ export default function Labs() {
       <section id="wd-lab1-landing">
         <h2>Lab 1</h2>
         <p>
-          <b>Name:</b> Khang Pham {
+          <b>Name:</b> Khang Pham
         </p>
         <ul>
           <li>
@@ -26,11 +26,11 @@ export default function Labs() {
               Lab 3
             </Link>
           </li>
-          <li>
-            <Link href="/Kambaz" id="wd-kambaz-link">
-              Kambaz (app)
-            </Link>
-          </li>
+            <li>
+            <a href="/" id="wd-kambaz-link">
+                Kambaz (app)
+            </a>
+            </li>
           <li>
             {}
             <a
