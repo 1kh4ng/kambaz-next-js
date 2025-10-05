@@ -69,8 +69,7 @@ const PEOPLE: Person[] = [
 ];
 
 export default function PeoplePage({ params }: { params: { cid: string } }) {
-  const { cid } = params;
-
+  const { cid: _cid } = params;
   return (
     <div id="wd-people" className="container-fluid">
       <div className="d-flex align-items-center mb-3">

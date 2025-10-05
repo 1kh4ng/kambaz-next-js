@@ -1,14 +1,15 @@
+import React from "react";
 import CourseNavigation from "./Navigation";
 import { FaBars } from "react-icons/fa6";
 
-export default function CourseLayout({
+export default async function CourseLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { cid: string };
+  params: Promise<{ cid: string }>;
 }) {
-  const { cid } = params;
+  const { cid } = await params;
 
   return (
     <div className="container-fluid">
