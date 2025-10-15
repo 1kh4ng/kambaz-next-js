@@ -1,0 +1,20 @@
+{
+  "overrides": [
+    {
+      "files": ["Labs/Lab3/**/*.{ts,tsx}"],
+      "rules": {
+        "no-var": "off",
+        "prefer-const": "off",
+        "react/jsx-key": "off",
+        "react/no-unescaped-entities": "off"
+      }
+    },
+    {
+      "files": ["Labs/Lab1/**/*.{ts,tsx}", "Labs/Lab2/**/*.{ts,tsx}"],
+      "rules": {
+        "@next/next/no-img-element": "off",
+        "jsx-a11y/alt-text": "off"
+      }
+    }
+  ]
+}

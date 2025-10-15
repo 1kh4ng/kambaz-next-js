@@ -5,6 +5,7 @@ import { LiaBookSolid, LiaCogSolid } from "react-icons/lia";
 import { FaInbox, FaRegCircleUser } from "react-icons/fa6";
 import { usePathname } from "next/navigation";
 import { ListGroup, ListGroupItem } from "react-bootstrap";
+import Image from "next/image";
 import Link from "next/link";
 export default function KambazNavigation() {
   const pathname = usePathname();
@@ -16,19 +17,31 @@ export default function KambazNavigation() {
     { label: "Labs",      path: "/Labs",             icon: LiaCogSolid },
   ];
 
-  const isActive = (href: string) => {
-    const h = href.toLowerCase();
-    return pathname === h || pathname.startsWith(h + "/");
-  };
+  // const isActive = (href: string) => {
+  //   const h = href.toLowerCase();
+  //   return pathname === h || pathname.startsWith(h + "/");
+  // };
   
   return (
     <ListGroup id="wd-kambaz-navigation" style={{width: 120}}
          className="rounded-0 position-fixed bottom-0 top-0 d-none d-md-block bg-black z-2">
-      <ListGroupItem className="bg-black border-0 text-center">
-        <Link href="https://www.northeastern.edu" target="_blank" className="text-decoration-none">
-          <img src="/images/northeastern.jpg" alt="Northeastern University" width={80} />
-        </Link>
-      </ListGroupItem>
+    <ListGroupItem className="bg-black border-0 text-center">
+      <a
+        href="https://www.northeastern.edu"
+        target="_blank"
+        rel="noreferrer"
+        className="text-decoration-none d-inline-block"
+      >
+        <Image
+          src="/images/northeastern.jpg"  // or /images/NEU.png if that’s the one you have
+          alt="Northeastern University"
+          width={80}
+          height={80}   // any reasonable height; it will preserve aspect ratio
+          style={{ height: "auto", width: "80px" }}
+          priority
+        />
+      </a>
+    </ListGroupItem>
       <ListGroupItem as={Link} href="/Account"
         className={`text-center border-0 bg-black
             ${pathname.includes("Account") ? "bg-white text-danger" : "bg-black text-white"}`}>

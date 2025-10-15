@@ -1,4 +1,4 @@
-export default function ModulesContent({ cid }: { cid: string }) {
+export default function ModulesContent() {
   return (
     <div id="wd-course-modules">
       <div>

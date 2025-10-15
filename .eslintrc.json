@@ -1,0 +1,14 @@
+{
+  "extends": "next/core-web-vitals",
+  "overrides": [
+    {
+      "files": ["app/Labs/Lab3/**/*.{ts,tsx}"],
+      "rules": {
+        "no-var": "off",
+        "prefer-const": "off",
+        "react/jsx-key": "off",
+        "react/no-unescaped-entities": "off"
+      }
+    }
+  ]
+}

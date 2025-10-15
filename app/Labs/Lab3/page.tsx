@@ -24,7 +24,6 @@ import House from "./House";
 import Spreader from "./Spreader";
 import Destructing from "./Destructing";
 import FunctionDestructing from "./FunctionDestructing";
-import Math from "./Math";
 import DestructingImports from "./DestructingImports";
 import Classes from "./Classes";
 import Styles from "./Styles";
