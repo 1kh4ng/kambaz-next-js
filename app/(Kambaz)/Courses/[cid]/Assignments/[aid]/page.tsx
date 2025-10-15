@@ -1,23 +1,42 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { Form, Row, Col, Button } from "react-bootstrap";
+import assignments from "@/app/data/assignments.json";
 
-type PageProps = { params: { cid: string; aid: string } };
+type AssignmentItem = {
+  slug: string;
+  title: string;
+  notAvailableUntil?: string; 
+  due: string;                
+  pts: number;
+};
+type AssignmentGroup = {
+  course: number;
+  group: string;
+  weight: string;
+  items: AssignmentItem[];
+};
 
-const AssignmentEditorPage: React.FC<PageProps> = ({ params }) => {
-  const { cid, aid } = params;
+export default function AssignmentEditorPage() {
+  const { cid, aid } = useParams<{ cid: string; aid: string }>();
+
+  const group = (assignments as AssignmentGroup[]).find(
+    (g) => String(g.course) === cid
+  );
+  const assignment = group?.items.find((i) => i.slug === (aid || ""));
 
   const [assignees, setAssignees] = useState<string[]>(["Everyone"]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const removeChip = (idx: number) =>
-    setAssignees(prev => prev.filter((_, i) => i !== idx));
+    setAssignees((prev) => prev.filter((_, i) => i !== idx));
 
   const addChip = (value: string) => {
     const v = value.trim();
     if (!v) return;
-    setAssignees(prev => (prev.includes(v) ? prev : [...prev, v]));
+    setAssignees((prev) => (prev.includes(v) ? prev : [...prev, v]));
   };
 
   const onChipInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -30,15 +49,19 @@ const AssignmentEditorPage: React.FC<PageProps> = ({ params }) => {
 
   return (
     <div id="wd-assignments-editor" className="container-fluid">
-      <h2 className="h5 mb-3">Assignment {aid} – Course {cid}</h2>
+      <h2 className="h5 mb-3">
+        Assignment {assignment?.title ?? aid} – Course {cid}
+      </h2>
 
       <Form.Group className="mb-3" controlId="wd-name">
         <Form.Label>Assignment Name</Form.Label>
-        <Form.Control defaultValue="A1" />
+        {/* name from JSON */}
+        <Form.Control defaultValue={assignment?.title ?? "Untitled"} />
       </Form.Group>
 
       <Form.Group className="mb-4" controlId="wd-description">
         <Form.Label>Description</Form.Label>
+        {/* keep the textbook's sample description */}
         <Form.Control
           as="textarea"
           rows={10}
@@ -60,14 +83,16 @@ The Kanbas application should include a link to navigate back to the landing pag
         <Row className="mb-3">
           <Form.Label column sm={3}>Points</Form.Label>
           <Col sm={9}>
-            <Form.Control id="wd-points" type="number" defaultValue={100} />
+            {/* points from JSON */}
+            <Form.Control id="wd-points" type="number" defaultValue={assignment?.pts ?? 100} />
           </Col>
         </Row>
 
         <Row className="mb-3">
           <Form.Label column sm={3}>Assignment Group</Form.Label>
           <Col sm={9}>
-            <Form.Select id="wd-group" defaultValue="ASSIGNMENTS">
+            {/* default to the JSON's group name (e.g., ASSIGNMENTS) */}
+            <Form.Select id="wd-group" defaultValue={group?.group ?? "ASSIGNMENTS"}>
               <option value="ASSIGNMENTS">ASSIGNMENTS</option>
               <option value="QUIZZES">QUIZZES</option>
               <option value="EXAMS">EXAMS</option>
@@ -150,13 +175,19 @@ The Kanbas application should include a link to navigate back to the landing pag
                 <Col md={12}>
                   <Form.Group controlId="wd-due-date">
                     <Form.Label className="fw-semibold">Due</Form.Label>
-                    <Form.Control type="datetime-local" defaultValue="2024-05-13T23:59" />
+                    <Form.Control type="datetime-local" defaultValue="2024-10-17T23:59" />
+                    <div className="form-text">
+                      From data: {assignment?.due}
+                    </div>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group controlId="wd-available-from">
                     <Form.Label className="fw-semibold">Available from</Form.Label>
                     <Form.Control type="datetime-local" defaultValue="2024-05-06T12:00" />
+                    <div className="form-text">
+                      From data: {assignment?.notAvailableUntil ?? "TBD"}
+                    </div>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
@@ -177,6 +208,4 @@ The Kanbas application should include a link to navigate back to the landing pag
       </Form>
     </div>
   );
-};
-
-export default AssignmentEditorPage;
+}

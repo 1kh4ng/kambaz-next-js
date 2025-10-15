@@ -1,8 +1,2 @@
-export default function CoursesPage() {
-  return (
-    <div id="wd-courses">
-      <h1>Courses</h1>
-      <p>Courses coming soon...</p>
-    </div>
-  );
-}
+// app/Courses/page.tsx
+export { default } from "../Dashboard/page";

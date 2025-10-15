@@ -1,0 +1,56 @@
+[
+  {
+    "course": 4550,
+    "name": "Tony Stark",
+    "loginId": "001234561S",
+    "section": "S101",
+    "role": "STUDENT",
+    "lastActivity": "2020-10-01T00:00:00.000Z",
+    "totalActivity": "10:21:32"
+  },
+  {
+    "course": 4550,
+    "name": "Bruce Wayne",
+    "loginId": "001234562S",
+    "section": "S101",
+    "role": "STUDENT",
+    "lastActivity": "2020-11-02T00:00:00.000Z",
+    "totalActivity": "15:32:43"
+  },
+  {
+    "course": 4550,
+    "name": "Steve Rogers",
+    "loginId": "001234563S",
+    "section": "S101",
+    "role": "STUDENT",
+    "lastActivity": "2020-10-02T00:00:00.000Z",
+    "totalActivity": "23:32:43"
+  },
+  {
+    "course": 4550,
+    "name": "Natasha Romanoff",
+    "loginId": "001234564S",
+    "section": "S101",
+    "role": "TA",
+    "lastActivity": "2020-11-05T00:00:00.000Z",
+    "totalActivity": "13:23:34"
+  },
+  {
+    "course": 4550,
+    "name": "Thor Odinson",
+    "loginId": "001234565S",
+    "section": "S101",
+    "role": "STUDENT",
+    "lastActivity": "2020-12-01T00:00:00.000Z",
+    "totalActivity": "11:22:33"
+  },
+  {
+    "course": 4550,
+    "name": "Bruce Banner",
+    "loginId": "001234566S",
+    "section": "S101",
+    "role": "STUDENT",
+    "lastActivity": "2020-12-01T00:00:00.000Z",
+    "totalActivity": "22:33:44"
+  }
+]
