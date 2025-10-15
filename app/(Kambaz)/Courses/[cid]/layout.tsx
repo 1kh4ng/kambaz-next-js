@@ -11,23 +11,17 @@ type Course = {
   image: string;
 };
 
-export default function CourseLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { cid: string };
-}) {
-  const { cid } = params;
+export default function Layout(props: any) {
+  const { children, params } = props;
+  const { cid } = (params ?? {}) as { cid: string };
 
-  const course = (courses as Course[]).find(c => String(c._id) === cid);
+  const course = (courses as Course[]).find((c) => String(c._id) === cid);
 
   return (
     <div className="container-fluid">
       <div id="wd-course-header" className="py-2">
         <div className="d-flex align-items-center">
           <FaBars className="fs-4 me-2" />
-          {/* breadcrumb INSIDE the title, and the whole thing is red */}
           <h1 className="h4 m-0 text-danger">
             <Breadcrumb title={course ? course.title : `Course ${cid}`} />
           </h1>
