@@ -26,6 +26,11 @@ export default function Labs() {
               Lab 3 : JavaScript Funamentals
             </Link>
           </li>
+          <li>
+            <Link href="/Labs/Lab3" id="wd-lab3-link">
+              Lab 4 : React Applications
+            </Link>
+          </li>
             <li>
             <Link href="/" id="wd-kambaz-link">Kambaz (app)</Link>
             </li>

@@ -1,7 +1,6 @@
 "use client";
 
 import { ListGroup, ListGroupItem } from "react-bootstrap";
-import ModulesControls from "../Modules/ModulesControls";
 import GreenCheckmark from "../Modules/GreenCheckmark";
 import { FaGripVertical, FaEllipsisVertical, FaPlus } from "react-icons/fa6";
 import CourseStatus from "../Home/Status";
@@ -18,7 +17,6 @@ export default function CourseHomePage() {
       <div className="row">
 
         <div className="col-12 col-xl-9 mb-3">
-          <ModulesControls />
           <br /><br /><br /><br />
 
           <ListGroup className="rounded-0" id="wd-modules">

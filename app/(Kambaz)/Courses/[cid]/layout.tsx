@@ -1,39 +1,78 @@
-import React from "react";
+"use client";
+
+import { ReactNode, useState } from "react";
 import CourseNavigation from "./Navigation";
-import { FaBars } from "react-icons/fa6";
-import courses from "@/app/data/courses.json";
+import { FaAlignJustify } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { useParams } from "next/navigation";
+import { RootState } from "../../store";
 import Breadcrumb from "./Breadcrumb";
+import { redirect } from "next/dist/client/components/navigation";
 
-type Course = {
-  _id: number;
-  title: string;
-  subtitle: string;
-  image: string;
-};
+export default function Layout({ children }: { children: ReactNode }) {
+  const { cid } = useParams();
+  const { courses } = useSelector(
+    (state: RootState) => state.coursesReducer
+  );
+  const { currentUser } = useSelector(
+    (state: RootState) => state.accountReducer
+  );
+  const { enrollments } = useSelector(
+    (state: RootState) => state.enrollmentsReducer
+  );
 
-export default function Layout(props: any) {
-  const { children, params } = props;
-  const { cid } = (params ?? {}) as { cid: string };
+  // must be signed in
+  if (!currentUser) {
+    redirect("/Account/Signin");
+  }
 
-  const course = (courses as Course[]).find((c) => String(c._id) === cid);
+  // must be enrolled in this course
+  const isEnrolled = enrollments.some(
+    (enrollment: any) =>
+      String(enrollment.user) === String(currentUser?._id) &&
+      String(enrollment.course) === String(cid)
+  );
+
+  if (!isEnrolled) {
+    redirect("/Dashboard");
+  }
+
+  const course = courses.find(
+    (course: any) => String(course._id) === String(cid)
+  );
+
+  const [showNav, setShowNav] = useState(true);
 
   return (
     <div className="container-fluid">
       <div id="wd-course-header" className="py-2">
         <div className="d-flex align-items-center">
-          <FaBars className="fs-4 me-2" />
+          <FaAlignJustify
+            className="fs-4 me-2"
+            onClick={() => setShowNav(!showNav)}
+          />
           <h1 className="h4 m-0 text-danger">
-            <Breadcrumb title={course ? course.title : `Course ${cid}`} />
+            <Breadcrumb
+              title={course ? course.title : `Course ${cid}`}
+            />
           </h1>
         </div>
       </div>
       <hr className="mt-2" />
 
       <div className="row">
-        <div className="col-12 col-md-2 mb-3">
-          <CourseNavigation cid={cid} />
+        {showNav && (
+          <div className="col-12 col-md-2 mb-3">
+            <CourseNavigation cid={String(cid)} />
+          </div>
+        )}
+        <div
+          className={
+            showNav ? "col-12 col-md-10 mb-3" : "col-12 mb-3"
+          }
+        >
+          {children}
         </div>
-        <div className="col-12 col-md-10 mb-3">{children}</div>
       </div>
     </div>
   );

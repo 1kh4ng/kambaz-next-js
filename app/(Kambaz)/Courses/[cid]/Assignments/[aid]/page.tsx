@@ -1,19 +1,21 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Form, Row, Col, Button } from "react-bootstrap";
-import assignments from "@/app/data/assignments.json";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../store";
+import { updateAssignment, deleteAssignment } from "../reducer";
 
 type AssignmentItem = {
   slug: string;
   title: string;
-  notAvailableUntil?: string; 
-  due: string;                
+  notAvailableUntil?: string;
+  due: string;
   pts: number;
 };
 type AssignmentGroup = {
-  course: number;
+  course: number | string;
   group: string;
   weight: string;
   items: AssignmentItem[];
@@ -21,14 +23,22 @@ type AssignmentGroup = {
 
 export default function AssignmentEditorPage() {
   const { cid, aid } = useParams<{ cid: string; aid: string }>();
+  const router = useRouter();
+  const dispatch = useDispatch();
 
-  const group = (assignments as AssignmentGroup[]).find(
-    (g) => String(g.course) === cid
+  const { groups } = useSelector((state: RootState) => state.assignmentsReducer);
+  const group = (groups as AssignmentGroup[]).find(
+    (g) => String(g.course) === String(cid)
   );
   const assignment = group?.items.find((i) => i.slug === (aid || ""));
 
   const [assignees, setAssignees] = useState<string[]>(["Everyone"]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const nameRef = useRef<HTMLInputElement>(null);
+  const ptsRef = useRef<HTMLInputElement>(null);
+  const dueRef = useRef<HTMLInputElement>(null);
+  const availRef = useRef<HTMLInputElement>(null);
 
   const removeChip = (idx: number) =>
     setAssignees((prev) => prev.filter((_, i) => i !== idx));
@@ -47,6 +57,27 @@ export default function AssignmentEditorPage() {
     }
   };
 
+  const onSave = () => {
+    if (!assignment) return;
+    dispatch(
+      updateAssignment({
+        course: Number(cid),
+        slug: assignment.slug,
+        title: nameRef.current?.value ?? assignment.title,
+        pts: Number(ptsRef.current?.value ?? assignment.pts),
+        due: dueRef.current?.value ?? assignment.due,
+        notAvailableUntil: availRef.current?.value ?? assignment.notAvailableUntil,
+      })
+    );
+    router.push(`/Courses/${cid}/Assignments`);
+  };
+
+  const onDelete = () => {
+    if (!assignment) return;
+    dispatch(deleteAssignment({ course: Number(cid), slug: assignment.slug }));
+    router.push(`/Courses/${cid}/Assignments`);
+  };
+
   return (
     <div id="wd-assignments-editor" className="container-fluid">
       <h2 className="h5 mb-3">
@@ -55,13 +86,14 @@ export default function AssignmentEditorPage() {
 
       <Form.Group className="mb-3" controlId="wd-name">
         <Form.Label>Assignment Name</Form.Label>
-        {/* name from JSON */}
-        <Form.Control defaultValue={assignment?.title ?? "Untitled"} />
+        <Form.Control
+          ref={nameRef}
+          defaultValue={assignment?.title ?? "Untitled"}
+        />
       </Form.Group>
 
       <Form.Group className="mb-4" controlId="wd-description">
         <Form.Label>Description</Form.Label>
-        {/* keep the textbook's sample description */}
         <Form.Control
           as="textarea"
           rows={10}
@@ -81,18 +113,28 @@ The Kanbas application should include a link to navigate back to the landing pag
 
       <Form>
         <Row className="mb-3">
-          <Form.Label column sm={3}>Points</Form.Label>
+          <Form.Label column sm={3}>
+            Points
+          </Form.Label>
           <Col sm={9}>
-            {/* points from JSON */}
-            <Form.Control id="wd-points" type="number" defaultValue={assignment?.pts ?? 100} />
+            <Form.Control
+              id="wd-points"
+              type="number"
+              ref={ptsRef}
+              defaultValue={assignment?.pts ?? 100}
+            />
           </Col>
         </Row>
 
         <Row className="mb-3">
-          <Form.Label column sm={3}>Assignment Group</Form.Label>
+          <Form.Label column sm={3}>
+            Assignment Group
+          </Form.Label>
           <Col sm={9}>
-            {/* default to the JSON's group name (e.g., ASSIGNMENTS) */}
-            <Form.Select id="wd-group" defaultValue={group?.group ?? "ASSIGNMENTS"}>
+            <Form.Select
+              id="wd-group"
+              defaultValue={group?.group ?? "ASSIGNMENTS"}
+            >
               <option value="ASSIGNMENTS">ASSIGNMENTS</option>
               <option value="QUIZZES">QUIZZES</option>
               <option value="EXAMS">EXAMS</option>
@@ -145,6 +187,7 @@ The Kanbas application should include a link to navigate back to the landing pag
                   style={{ minHeight: 48 }}
                   onClick={() => inputRef.current?.focus()}
                 >
+                  {/* chips */}
                   {assignees.map((name, idx) => (
                     <span key={name} className="wd-chip">
                       <span>{name}</span>
@@ -175,7 +218,11 @@ The Kanbas application should include a link to navigate back to the landing pag
                 <Col md={12}>
                   <Form.Group controlId="wd-due-date">
                     <Form.Label className="fw-semibold">Due</Form.Label>
-                    <Form.Control type="datetime-local" defaultValue="2024-10-17T23:59" />
+                    <Form.Control
+                      ref={dueRef}
+                      type="datetime-local"
+                      defaultValue="2024-10-17T23:59"
+                    />
                     <div className="form-text">
                       From data: {assignment?.due}
                     </div>
@@ -184,7 +231,11 @@ The Kanbas application should include a link to navigate back to the landing pag
                 <Col md={6}>
                   <Form.Group controlId="wd-available-from">
                     <Form.Label className="fw-semibold">Available from</Form.Label>
-                    <Form.Control type="datetime-local" defaultValue="2024-05-06T12:00" />
+                    <Form.Control
+                      ref={availRef}
+                      type="datetime-local"
+                      defaultValue="2024-05-06T12:00"
+                    />
                     <div className="form-text">
                       From data: {assignment?.notAvailableUntil ?? "TBD"}
                     </div>
@@ -202,8 +253,15 @@ The Kanbas application should include a link to navigate back to the landing pag
         </Row>
 
         <div className="d-flex justify-content-end gap-2 mt-4">
-          <Button variant="secondary">Cancel</Button>
-          <Button variant="danger">Save</Button>
+          <Button variant="secondary" onClick={() => router.push(`/Courses/${cid}/Assignments`)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={onSave}>
+            Save
+          </Button>
+          <Button variant="outline-danger" onClick={onDelete}>
+            Delete
+          </Button>
         </div>
       </Form>
     </div>

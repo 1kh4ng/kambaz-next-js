@@ -18,7 +18,9 @@ import {
   FaRegPenToSquare,
 } from "react-icons/fa6";
 import GreenCheckmark from "../Modules/GreenCheckmark";
-import assignments from "@/app/data/assignments.json";
+import { useDispatch, useSelector } from "react-redux";
+import { addAssignment } from "./reducer";
+import { RootState } from "../../../store";
 
 type AssignmentItem = {
   slug: string;
@@ -28,7 +30,7 @@ type AssignmentItem = {
   pts: number;
 };
 type AssignmentGroup = {
-  course: number;
+  course: number | string;
   group: string;
   weight: string;
   items: AssignmentItem[];
@@ -67,8 +69,11 @@ const AssignmentMeta = ({
 
 export default function AssignmentsPage() {
   const { cid } = useParams<{ cid: string }>();
-  const group = (assignments as AssignmentGroup[]).find(
-    (g) => String(g.course) === cid
+  const dispatch = useDispatch();
+  const { groups } = useSelector((state: RootState) => state.assignmentsReducer);
+
+  const group = (groups as AssignmentGroup[]).find(
+    (g) => String(g.course) === String(cid)
   );
 
   return (
@@ -88,7 +93,12 @@ export default function AssignmentsPage() {
           <Button variant="secondary" size="lg" className="text-nowrap">
             <FaPlus className="me-2" /> Group
           </Button>
-          <Button variant="danger" size="lg" className="text-nowrap">
+          <Button
+            variant="danger"
+            size="lg"
+            className="text-nowrap"
+            onClick={() => dispatch(addAssignment({ course: Number(cid) }))}
+          >
             <FaPlus className="me-2" /> Assignment
           </Button>
         </div>
