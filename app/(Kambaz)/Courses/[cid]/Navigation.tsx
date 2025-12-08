@@ -2,28 +2,47 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Nav, NavLink } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
-export default function CourseNavigation({ cid }: { cid: string }) {
-  const pathname = (usePathname() || "").toLowerCase();
-
-  const links = ["Home", "Modules", "Piazza", "Zoom", "Assignments", "Quizzes", "Grades", "People"];
+export default function AccountNavigation() {
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+  const pathname = usePathname() || "";
 
   return (
-    <div id="wd-course-navigation" className="list-group wd rounded-0">
-      {links.map((label) => {
-        const slug = label; // labels double as slugs per the book
-        const href = `/Courses/${cid}/${slug}`;
-        const active = pathname === href.toLowerCase() || pathname.startsWith(href.toLowerCase() + "/");
-        return (
-          <Link
-            key={slug}
-            href={href}
-            className={`list-group-item border-0 ${active ? "active" : "text-danger"}`}
-          >
-            {label}
-          </Link>
-        );
-      })}
-    </div>
+    <Nav variant="pills" className="flex-column" id="wd-account-nav">
+      <NavLink
+        as={Link}
+        href={`/Account/Signin`}
+        active={pathname.endsWith("Signin")}
+      >
+        Signin
+      </NavLink>
+      <NavLink
+        as={Link}
+        href={`/Account/Signup`}
+        active={pathname.endsWith("Signup")}
+      >
+        Signup
+      </NavLink>
+      <NavLink
+        as={Link}
+        href={`/Account/Profile`}
+        active={pathname.endsWith("Profile")}
+      >
+        Profile
+      </NavLink>
+
+      {currentUser && currentUser.role === "ADMIN" && (
+        <NavLink
+          as={Link}
+          href={`/Account/Users`}
+          active={pathname.endsWith("Users")}
+        >
+          Users
+        </NavLink>
+      )}
+    </Nav>
   );
 }
