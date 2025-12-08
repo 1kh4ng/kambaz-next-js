@@ -1,107 +1,53 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { assignments as seed } from "../../../Database";
 import { v4 as uuidv4 } from "uuid";
 
-type AssignmentItem = {
-  slug: string;
-  title: string;
-  notAvailableUntil?: string;
-  due: string;
-  pts: number;
-};
-
-type AssignmentGroup = {
-  course: number | string;
-  group: string;
-  weight: string;
-  items: AssignmentItem[];
-};
-
-type AssignmentsState = {
-  groups: AssignmentGroup[];
-};
-
-const initialState: AssignmentsState = {
-  groups: (seed as AssignmentGroup[]),
+const initialState = {
+  assignments: [],
 };
 
 const assignmentsSlice = createSlice({
   name: "assignments",
   initialState,
   reducers: {
-    addAssignment: (
-      state,
-      { payload }: { payload: { course: number | string; title?: string } }
-    ) => {
-      const title = payload.title ?? "New Assignment";
-      const group = state.groups.find(
-        (g) => String(g.course) === String(payload.course)
-      );
-      const newItem: AssignmentItem = {
-        slug: `a-${uuidv4()}`,
-        title,
-        due: "TBD",
-        pts: 100,
+    setAssignments: (state, action) => {
+      state.assignments = action.payload;
+    },
+    addAssignment: (state, { payload: assignment }) => {
+      const newAssignment = {
+        _id: uuidv4(),
+        title: assignment.title ?? "New Assignment",
+        course: assignment.course,
+        points: assignment.points ?? 100,
+        due: assignment.due ?? "TBD",
+        available: assignment.available ?? "TBD",
+        editing: false,
       };
-      if (group) {
-        group.items = [...group.items, newItem];
-      } else {
-        state.groups.push({
-          course: payload.course,
-          group: "ASSIGNMENTS",
-          weight: "40% of Total",
-          items: [newItem],
-        });
-      }
+      state.assignments = [...state.assignments, newAssignment] as any;
     },
-
-    updateAssignment: (
-      state,
-      {
-        payload,
-      }: {
-        payload: {
-          course: number | string;
-          slug: string;
-          title?: string;
-          notAvailableUntil?: string;
-          due?: string;
-          pts?: number;
-        };
-      }
-    ) => {
-      const group = state.groups.find(
-        (g) => String(g.course) === String(payload.course)
-      );
-      if (!group) return;
-      group.items = group.items.map((it) =>
-        it.slug === payload.slug
-          ? {
-              ...it,
-              ...(payload.title !== undefined ? { title: payload.title } : {}),
-              ...(payload.notAvailableUntil !== undefined
-                ? { notAvailableUntil: payload.notAvailableUntil }
-                : {}),
-              ...(payload.due !== undefined ? { due: payload.due } : {}),
-              ...(payload.pts !== undefined ? { pts: payload.pts } : {}),
-            }
-          : it
-      );
+    deleteAssignment: (state, { payload: assignmentId }) => {
+      state.assignments = state.assignments.filter(
+        (a: any) => a._id !== assignmentId
+      ) as any;
     },
-
-    deleteAssignment: (
-      state,
-      { payload }: { payload: { course: number | string; slug: string } }
-    ) => {
-      const group = state.groups.find(
-        (g) => String(g.course) === String(payload.course)
-      );
-      if (!group) return;
-      group.items = group.items.filter((it) => it.slug !== payload.slug);
+    updateAssignment: (state, { payload: assignment }) => {
+      state.assignments = state.assignments.map((a: any) =>
+        a._id === assignment._id ? assignment : a
+      ) as any;
+    },
+    editAssignment: (state, { payload: assignmentId }) => {
+      state.assignments = state.assignments.map((a: any) =>
+        a._id === assignmentId ? { ...a, editing: true } : a
+      ) as any;
     },
   },
 });
 
-export const { addAssignment, updateAssignment, deleteAssignment } =
-  assignmentsSlice.actions;
+export const {
+  setAssignments,
+  addAssignment,
+  deleteAssignment,
+  updateAssignment,
+  editAssignment,
+} = assignmentsSlice.actions;
+
 export default assignmentsSlice.reducer;

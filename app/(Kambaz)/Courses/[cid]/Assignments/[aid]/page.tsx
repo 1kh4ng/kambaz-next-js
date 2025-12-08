@@ -1,24 +1,54 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
-import { updateAssignment, deleteAssignment } from "../reducer";
+import { setAssignments } from "../reducer";
+import * as client from "../client";
 
-type AssignmentItem = {
-  slug: string;
-  title: string;
-  notAvailableUntil?: string;
-  due: string;
-  pts: number;
+const getTitle = (a: any) => a?.title ?? a?.name ?? "Untitled";
+const getPoints = (a: any) => a?.points ?? a?.pts ?? 0;
+const getDue = (a: any) => a?.due ?? a?.dueDate ?? a?.due_date ?? "";
+const getAvailableFrom = (a: any) =>
+  a?.availableFrom ?? a?.available_from ?? a?.available ?? a?.notAvailableUntil ?? "";
+const getAvailableUntil = (a: any) => a?.availableUntil ?? a?.until ?? "";
+const getDescription = (a: any) => a?.description ?? "";
+const getGroup = (a: any) => a?.group ?? "ASSIGNMENTS";
+const getDisplayGradeAs = (a: any) => a?.displayGradeAs ?? "Percentage";
+const getSubmissionType = (a: any) => a?.submissionType ?? "Online";
+const getAssignTo = (a: any) => (Array.isArray(a?.assignTo) ? a.assignTo : ["Everyone"]);
+
+const getOnlineEntryOptions = (a: any) => {
+  const o = a?.onlineEntryOptions;
+  if (o && typeof o === "object") {
+    return {
+      textEntry: !!o.textEntry,
+      websiteUrl: !!o.websiteUrl,
+      mediaRecordings: !!o.mediaRecordings,
+      studentAnnotation: !!o.studentAnnotation,
+      fileUploads: !!o.fileUploads,
+    };
+  }
+  return {
+    textEntry: false,
+    websiteUrl: true,
+    mediaRecordings: false,
+    studentAnnotation: false,
+    fileUploads: false,
+  };
 };
-type AssignmentGroup = {
-  course: number | string;
-  group: string;
-  weight: string;
-  items: AssignmentItem[];
+
+const toInputDateTime = (value: any) => {
+  if (!value) return "";
+  if (typeof value === "string" && value.includes("T")) return value;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours()
+  )}:${pad(d.getMinutes())}`;
 };
 
 export default function AssignmentEditorPage() {
@@ -26,19 +56,46 @@ export default function AssignmentEditorPage() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { groups } = useSelector((state: RootState) => state.assignmentsReducer);
-  const group = (groups as AssignmentGroup[]).find(
-    (g) => String(g.course) === String(cid)
-  );
-  const assignment = group?.items.find((i) => i.slug === (aid || ""));
+  const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
+  const assignment = (assignments as any[]).find((a: any) => String(a._id) === String(aid));
 
-  const [assignees, setAssignees] = useState<string[]>(["Everyone"]);
+  const [assignees, setAssignees] = useState<string[]>(assignment ? getAssignTo(assignment) : ["Everyone"]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
+  const descRef = useRef<HTMLTextAreaElement>(null);
   const ptsRef = useRef<HTMLInputElement>(null);
+  const groupRef = useRef<HTMLSelectElement>(null);
+  const displayGradeAsRef = useRef<HTMLSelectElement>(null);
+  const submissionTypeRef = useRef<HTMLSelectElement>(null);
+
+  const textEntryRef = useRef<HTMLInputElement>(null);
+  const websiteUrlRef = useRef<HTMLInputElement>(null);
+  const mediaRecordingsRef = useRef<HTMLInputElement>(null);
+  const studentAnnotationRef = useRef<HTMLInputElement>(null);
+  const fileUploadsRef = useRef<HTMLInputElement>(null);
+
   const dueRef = useRef<HTMLInputElement>(null);
-  const availRef = useRef<HTMLInputElement>(null);
+  const availFromRef = useRef<HTMLInputElement>(null);
+  const availUntilRef = useRef<HTMLInputElement>(null);
+
+  const fetchAssignments = async () => {
+    if (!cid) return;
+    const data = await client.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(data));
+  };
+
+  useEffect(() => {
+    if (!assignment) {
+      fetchAssignments();
+    }
+  }, [cid, aid]);
+
+  useEffect(() => {
+    if (assignment) {
+      setAssignees(getAssignTo(assignment));
+    }
+  }, [assignment?._id]);
 
   const removeChip = (idx: number) =>
     setAssignees((prev) => prev.filter((_, i) => i !== idx));
@@ -57,47 +114,73 @@ export default function AssignmentEditorPage() {
     }
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!assignment) return;
-    dispatch(
-      updateAssignment({
-        course: Number(cid),
-        slug: assignment.slug,
-        title: nameRef.current?.value ?? assignment.title,
-        pts: Number(ptsRef.current?.value ?? assignment.pts),
-        due: dueRef.current?.value ?? assignment.due,
-        notAvailableUntil: availRef.current?.value ?? assignment.notAvailableUntil,
-      })
+
+    const updated = {
+      ...assignment,
+      title: nameRef.current?.value ?? getTitle(assignment),
+      description: descRef.current?.value ?? getDescription(assignment),
+      points: Number(ptsRef.current?.value ?? getPoints(assignment)),
+      group: groupRef.current?.value ?? getGroup(assignment),
+      displayGradeAs: displayGradeAsRef.current?.value ?? getDisplayGradeAs(assignment),
+      submissionType: submissionTypeRef.current?.value ?? getSubmissionType(assignment),
+      onlineEntryOptions: {
+        textEntry: !!textEntryRef.current?.checked,
+        websiteUrl: !!websiteUrlRef.current?.checked,
+        mediaRecordings: !!mediaRecordingsRef.current?.checked,
+        studentAnnotation: !!studentAnnotationRef.current?.checked,
+        fileUploads: !!fileUploadsRef.current?.checked,
+      },
+      assignTo: assignees,
+      due: dueRef.current?.value ?? getDue(assignment),
+      availableFrom: availFromRef.current?.value ?? getAvailableFrom(assignment),
+      availableUntil: availUntilRef.current?.value ?? getAvailableUntil(assignment),
+      available: availFromRef.current?.value ?? getAvailableFrom(assignment),
+      editing: false,
+    };
+
+    await client.updateAssignment(updated);
+
+    const newAssignments = (assignments as any[]).map((a: any) =>
+      a._id === updated._id ? updated : a
     );
+    dispatch(setAssignments(newAssignments));
+
     router.push(`/Courses/${cid}/Assignments`);
   };
 
-  const onDelete = () => {
+  const onDelete = async () => {
     if (!assignment) return;
-    dispatch(deleteAssignment({ course: Number(cid), slug: assignment.slug }));
+
+    await client.deleteAssignment(assignment._id);
+    dispatch(setAssignments((assignments as any[]).filter((a: any) => a._id !== assignment._id)));
     router.push(`/Courses/${cid}/Assignments`);
   };
+
+  const initialOptions = assignment ? getOnlineEntryOptions(assignment) : getOnlineEntryOptions(null);
 
   return (
     <div id="wd-assignments-editor" className="container-fluid">
       <h2 className="h5 mb-3">
-        Assignment {assignment?.title ?? aid} – Course {cid}
+        Assignment {assignment ? getTitle(assignment) : aid} – Course {cid}
       </h2>
 
       <Form.Group className="mb-3" controlId="wd-name">
         <Form.Label>Assignment Name</Form.Label>
-        <Form.Control
-          ref={nameRef}
-          defaultValue={assignment?.title ?? "Untitled"}
-        />
+        <Form.Control ref={nameRef} defaultValue={assignment ? getTitle(assignment) : "Untitled"} />
       </Form.Group>
 
       <Form.Group className="mb-4" controlId="wd-description">
         <Form.Label>Description</Form.Label>
         <Form.Control
+          ref={descRef}
           as="textarea"
           rows={10}
-          defaultValue={`The assignment is available online
+          defaultValue={
+            assignment && getDescription(assignment)
+              ? getDescription(assignment)
+              : `The assignment is available online
 
 Submit a link to the landing page of your Web application running on Netlify.
 
@@ -107,7 +190,8 @@ The landing page should include the following:
 • Link to the Kanbas application
 • Links to all relevant source code repositories
 
-The Kanbas application should include a link to navigate back to the landing page.`}
+The Kanbas application should include a link to navigate back to the landing page.`
+          }
         />
       </Form.Group>
 
@@ -121,7 +205,7 @@ The Kanbas application should include a link to navigate back to the landing pag
               id="wd-points"
               type="number"
               ref={ptsRef}
-              defaultValue={assignment?.pts ?? 100}
+              defaultValue={assignment ? getPoints(assignment) : 100}
             />
           </Col>
         </Row>
@@ -133,7 +217,8 @@ The Kanbas application should include a link to navigate back to the landing pag
           <Col sm={9}>
             <Form.Select
               id="wd-group"
-              defaultValue={group?.group ?? "ASSIGNMENTS"}
+              ref={groupRef}
+              defaultValue={assignment ? getGroup(assignment) : "ASSIGNMENTS"}
             >
               <option value="ASSIGNMENTS">ASSIGNMENTS</option>
               <option value="QUIZZES">QUIZZES</option>
@@ -146,7 +231,11 @@ The Kanbas application should include a link to navigate back to the landing pag
         <Row className="mb-3">
           <Form.Label column sm={3}>Display Grade as</Form.Label>
           <Col sm={9}>
-            <Form.Select id="wd-display-grade-as" defaultValue="Percentage">
+            <Form.Select
+              id="wd-display-grade-as"
+              ref={displayGradeAsRef}
+              defaultValue={assignment ? getDisplayGradeAs(assignment) : "Percentage"}
+            >
               <option>Percentage</option>
               <option>Points</option>
               <option>Letter Grade</option>
@@ -160,18 +249,22 @@ The Kanbas application should include a link to navigate back to the landing pag
           <Form.Label column sm={3}>Submission Type</Form.Label>
           <Col sm={9}>
             <div className="border rounded p-3">
-              <Form.Select id="wd-submission-type" defaultValue="Online">
+              <Form.Select
+                id="wd-submission-type"
+                ref={submissionTypeRef}
+                defaultValue={assignment ? getSubmissionType(assignment) : "Online"}
+              >
                 <option>Online</option>
                 <option>On Paper</option>
                 <option>No Submission</option>
               </Form.Select>
 
               <div className="fw-semibold mt-3 mb-2">Online Entry Options</div>
-              <Form.Check id="wd-text-entry" type="checkbox" label="Text Entry" />
-              <Form.Check id="wd-website-url" type="checkbox" label="Website URL" defaultChecked />
-              <Form.Check id="wd-media-recordings" type="checkbox" label="Media Recordings" />
-              <Form.Check id="wd-student-annotation" type="checkbox" label="Student Annotation" />
-              <Form.Check id="wd-file-upload" type="checkbox" label="File Uploads" />
+              <Form.Check id="wd-text-entry" type="checkbox" label="Text Entry" ref={textEntryRef} defaultChecked={initialOptions.textEntry} />
+              <Form.Check id="wd-website-url" type="checkbox" label="Website URL" ref={websiteUrlRef} defaultChecked={initialOptions.websiteUrl} />
+              <Form.Check id="wd-media-recordings" type="checkbox" label="Media Recordings" ref={mediaRecordingsRef} defaultChecked={initialOptions.mediaRecordings} />
+              <Form.Check id="wd-student-annotation" type="checkbox" label="Student Annotation" ref={studentAnnotationRef} defaultChecked={initialOptions.studentAnnotation} />
+              <Form.Check id="wd-file-upload" type="checkbox" label="File Uploads" ref={fileUploadsRef} defaultChecked={initialOptions.fileUploads} />
             </div>
           </Col>
         </Row>
@@ -187,9 +280,8 @@ The Kanbas application should include a link to navigate back to the landing pag
                   style={{ minHeight: 48 }}
                   onClick={() => inputRef.current?.focus()}
                 >
-                  {/* chips */}
                   {assignees.map((name, idx) => (
-                    <span key={name} className="wd-chip">
+                    <span key={`${name}-${idx}`} className="wd-chip">
                       <span>{name}</span>
                       <button
                         type="button"
@@ -221,30 +313,28 @@ The Kanbas application should include a link to navigate back to the landing pag
                     <Form.Control
                       ref={dueRef}
                       type="datetime-local"
-                      defaultValue="2024-10-17T23:59"
+                      defaultValue={toInputDateTime(assignment ? getDue(assignment) : "")}
                     />
-                    <div className="form-text">
-                      From data: {assignment?.due}
-                    </div>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group controlId="wd-available-from">
                     <Form.Label className="fw-semibold">Available from</Form.Label>
                     <Form.Control
-                      ref={availRef}
+                      ref={availFromRef}
                       type="datetime-local"
-                      defaultValue="2024-05-06T12:00"
+                      defaultValue={toInputDateTime(assignment ? getAvailableFrom(assignment) : "")}
                     />
-                    <div className="form-text">
-                      From data: {assignment?.notAvailableUntil ?? "TBD"}
-                    </div>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group controlId="wd-available-until">
                     <Form.Label className="fw-semibold">Until</Form.Label>
-                    <Form.Control type="datetime-local" defaultValue="2024-05-20T12:00" />
+                    <Form.Control
+                      ref={availUntilRef}
+                      type="datetime-local"
+                      defaultValue={toInputDateTime(assignment ? getAvailableUntil(assignment) : "")}
+                    />
                   </Form.Group>
                 </Col>
               </Row>

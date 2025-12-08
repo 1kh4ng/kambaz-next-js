@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import {
   ListGroup,
@@ -18,7 +18,8 @@ import {
   FaPencil,
   FaTrash,
 } from "react-icons/fa6";
-import { addModule, editModule, updateModule, deleteModule } from "./reducer";
+import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
+import * as client from "../../client";
 
 const Grip = () => (
   <span className="text-muted d-inline-flex align-items-center me-2">
@@ -36,19 +37,41 @@ export default function ModulesPage() {
 
   const [moduleName, setModuleName] = useState("");
 
-  const courseModules = (modules as any[]).filter(
-    (m) => String(m.course) === String(cid)
-  );
+  const fetchModules = async () => {
+    if (!cid) return;
+    const modules = await client.findModulesForCourse(cid as string);
+    dispatch(setModules(modules));
+  };
+
+  useEffect(() => {
+    fetchModules();
+  }, [cid]);
+
+  const onCreateModuleForCourse = async () => {
+    if (!cid) return;
+    const newModule = { name: moduleName, course: cid };
+    const module = await client.createModuleForCourse(cid as string, newModule);
+    dispatch(setModules([...(modules as any[]), module]));
+    setModuleName("");
+  };
+
+  const onRemoveModule = async (moduleId: string) => {
+    await client.deleteModule(moduleId);
+    dispatch(setModules((modules as any[]).filter((m: any) => m._id !== moduleId)));
+  };
+
+  const onUpdateModule = async (module: any) => {
+    await client.updateModule(module);
+    const newModules = (modules as any[]).map((m: any) => m._id === module._id ? module : m);
+    dispatch(setModules(newModules));
+  };
 
   return (
     <div id="wd-modules-page" className="container-fluid">
       <ModulesControls
         moduleName={moduleName}
         setModuleName={setModuleName}
-        addModule={() => {
-          dispatch(addModule({ name: moduleName, course: cid }));
-          setModuleName("");
-        }}
+        addModule={onCreateModuleForCourse}
       />
       <br />
       <br />
@@ -56,35 +79,32 @@ export default function ModulesPage() {
       <br />
 
       <ListGroup className="rounded-0" id="wd-modules">
-        {courseModules.map((mod: any) => (
+        {(modules as any[]).map((mod: any) => (
           <ListGroupItem
             key={mod._id}
             className="wd-module p-0 mb-5 fs-5 border-gray"
           >
             <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center">
               <Grip />
-              {!mod.editing && <span>{mod.name ?? mod.title}</span>}
+              {!mod.editing && <span>{mod.name}</span>}
               {mod.editing && (
                 <FormControl
                   className="w-50"
-                  defaultValue={mod.name ?? mod.title}
+                  value={mod.name ?? ""}
                   onChange={(e) =>
                     dispatch(
                       updateModule({
                         ...mod,
                         name: e.target.value,
-                        title: e.target.value,
                       })
                     )
                   }
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      dispatch(
-                        updateModule({
-                          ...mod,
-                          editing: false,
-                        })
-                      );
+                      onUpdateModule({
+                        ...mod,
+                        editing: false,
+                      });
                     }
                   }}
                 />
@@ -97,7 +117,7 @@ export default function ModulesPage() {
                 />
                 <FaTrash
                   className="text-danger me-3"
-                  onClick={() => dispatch(deleteModule(mod._id))}
+                  onClick={() => onRemoveModule(mod._id)}
                 />
                 <GreenCheckmark />
                 <FaPlus className="ms-3 me-3" />
