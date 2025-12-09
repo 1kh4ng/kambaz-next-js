@@ -15,13 +15,19 @@ import * as enrollmentsClient from "../Enrollments/client";
 
 type Course = {
   _id: string | number;
-  title: string;
-  subtitle: string;
-  image: string;
+  title?: string;
+  subtitle?: string;
+  image?: string;
+  name?: string;
+  description?: string;
 };
 
 const placeholderImage =
-  (coursesData as Course[])[0]?.image || "/images/react.jpg";
+  (coursesData as any[])[0]?.image || "/images/react.jpg";
+
+const getCourseTitle = (c: any) => c?.title ?? c?.name ?? "Untitled";
+const getCourseSubtitle = (c: any) => c?.subtitle ?? c?.description ?? "";
+const getCourseImage = (c: any) => c?.image ?? placeholderImage;
 
 export default function DashboardPage() {
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
@@ -41,9 +47,11 @@ export default function DashboardPage() {
   });
 
   const isEnrolled = (courseId: string | number) => {
-    return (enrollments as any[]).some(
-      (e: any) => String(e.course) === String(courseId)
-    );
+    return (enrollments as any[]).some((e: any) => {
+      const sameCourse = String(e.course) === String(courseId);
+      if (e.user === undefined) return sameCourse;
+      return sameCourse && String(e.user) === String(currentUser?._id);
+    });
   };
 
   const fetchEnrollments = async () => {
@@ -60,7 +68,9 @@ export default function DashboardPage() {
         dispatch(setCourses(all));
         return;
       }
-      const enrolledIds = new Set((enrollments as any[]).map((e: any) => String(e.course)));
+      const enrolledIds = new Set(
+        (enrollments as any[]).map((e: any) => String(e.course))
+      );
       const mine = (all as any[]).filter((c: any) => enrolledIds.has(String(c._id)));
       dispatch(setCourses(mine));
     } catch (error) {}
@@ -75,21 +85,33 @@ export default function DashboardPage() {
   }, [currentUser, showAllCourses, enrollments]);
 
   const onAddNewCourse = async () => {
-    const newCourse = await createCourse(course);
-    dispatch(setCourses([ ...courses, newCourse ]));
+    const payload = {
+      name: course.name ?? course.title ?? "New Course",
+      description: course.description ?? course.subtitle ?? "",
+      image: course.image ?? placeholderImage,
+    };
+    const newCourse = await createCourse(payload);
+    dispatch(setCourses([...(courses as any[]), newCourse]));
   };
 
   const onDeleteCourse = async (courseId: string) => {
     await deleteCourse(courseId);
-    dispatch(setCourses(courses.filter((course: any) => course._id !== courseId)));
+    dispatch(setCourses((courses as any[]).filter((course: any) => String(course._id) !== String(courseId))));
   };
 
   const onUpdateCourse = async () => {
-    await updateCourse(course);
-    dispatch(setCourses(courses.map((c: any) => {
-      if (c._id === course._id) { return course; }
-      else { return c; }
-    })));
+    const payload = {
+      _id: course._id,
+      name: course.name ?? course.title ?? "Untitled",
+      description: course.description ?? course.subtitle ?? "",
+      image: course.image ?? placeholderImage,
+    };
+    await updateCourse(payload);
+    dispatch(
+      setCourses(
+        (courses as any[]).map((c: any) => (String(c._id) === String(course._id) ? { ...c, ...payload } : c))
+      )
+    );
   };
 
   const onToggleEnrollment = async (courseId: string | number) => {
@@ -143,21 +165,21 @@ export default function DashboardPage() {
       </h5>
       <br />
       <FormControl
-        value={course.title}
-        onChange={(e) => setCourse({ ...course, title: e.target.value })}
+        value={(course.name ?? course.title) as any}
+        onChange={(e) => setCourse({ ...course, name: e.target.value, title: e.target.value })}
         className="mb-2"
       />
       <FormControl
         as="textarea"
-        value={course.subtitle}
-        onChange={(e) => setCourse({ ...course, subtitle: e.target.value })}
+        value={(course.description ?? course.subtitle) as any}
+        onChange={(e) => setCourse({ ...course, description: e.target.value, subtitle: e.target.value })}
         rows={3}
       />
       <hr />
 
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
-          {courses.map((course: Course) => {
+          {(courses as any[]).map((course: any) => {
             const enrolled = isEnrolled(course._id);
             return (
               <Col
@@ -172,17 +194,17 @@ export default function DashboardPage() {
                   >
                     <Card.Img
                       as={Image}
-                      src={course.image || placeholderImage}
-                      alt={course.title}
+                      src={getCourseImage(course)}
+                      alt={getCourseTitle(course)}
                       width={300}
                       height={160}
                     />
                     <Card.Body>
                       <Card.Title style={{ color: "#000080", fontWeight: "bold" }}>
-                        {course.title}
+                        {getCourseTitle(course)}
                       </Card.Title>
                       <Card.Text className="text-dark" style={{ height: "100px" }}>
-                        {course.subtitle}
+                        {getCourseSubtitle(course)}
                       </Card.Text>
 
                       <Button variant="primary">Go</Button>
@@ -217,7 +239,14 @@ export default function DashboardPage() {
                         className="btn btn-warning float-end"
                         onClick={(event) => {
                           event.preventDefault();
-                          setCourse(course);
+                          setCourse({
+                            _id: course._id,
+                            name: course.name ?? course.title,
+                            description: course.description ?? course.subtitle,
+                            image: course.image ?? placeholderImage,
+                            title: course.title ?? course.name,
+                            subtitle: course.subtitle ?? course.description,
+                          });
                         }}
                       >
                         Edit
@@ -233,4 +262,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
