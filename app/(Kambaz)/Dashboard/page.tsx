@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Row, Col, Card, Button, FormControl, FormCheck } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
@@ -22,14 +23,13 @@ type Course = {
   description?: string;
 };
 
-const placeholderImage =
-  (coursesData as any[])[0]?.image || "/images/react.jpg";
-
+const placeholderImage = (coursesData as any[])[0]?.image || "/images/react.jpg";
 const getCourseTitle = (c: any) => c?.title ?? c?.name ?? "Untitled";
 const getCourseSubtitle = (c: any) => c?.subtitle ?? c?.description ?? "";
 const getCourseImage = (c: any) => c?.image ?? placeholderImage;
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { courses } = useSelector((state: RootState) => state.coursesReducer);
   const { currentUser } = useSelector((state: RootState) => state.accountReducer);
   const { enrollments, showAllCourses } = useSelector((state: RootState) => state.enrollmentsReducer);
@@ -47,11 +47,7 @@ export default function DashboardPage() {
   });
 
   const isEnrolled = (courseId: string | number) => {
-    return (enrollments as any[]).some((e: any) => {
-      const sameCourse = String(e.course) === String(courseId);
-      if (e.user === undefined) return sameCourse;
-      return sameCourse && String(e.user) === String(currentUser?._id);
-    });
+    return (enrollments as any[]).some((e: any) => String(e.course) === String(courseId));
   };
 
   const fetchEnrollments = async () => {
@@ -68,9 +64,7 @@ export default function DashboardPage() {
         dispatch(setCourses(all));
         return;
       }
-      const enrolledIds = new Set(
-        (enrollments as any[]).map((e: any) => String(e.course))
-      );
+      const enrolledIds = new Set((enrollments as any[]).map((e: any) => String(e.course)));
       const mine = (all as any[]).filter((c: any) => enrolledIds.has(String(c._id)));
       dispatch(setCourses(mine));
     } catch (error) {}
@@ -96,7 +90,7 @@ export default function DashboardPage() {
 
   const onDeleteCourse = async (courseId: string) => {
     await deleteCourse(courseId);
-    dispatch(setCourses((courses as any[]).filter((course: any) => String(course._id) !== String(courseId))));
+    dispatch(setCourses((courses as any[]).filter((c: any) => String(c._id) !== String(courseId))));
   };
 
   const onUpdateCourse = async () => {
@@ -131,7 +125,7 @@ export default function DashboardPage() {
 
       <div className="d-flex align-items-center">
         <h2 id="wd-dashboard-published" className="mb-0">
-          Published Courses ({courses.length})
+          Published Courses ({(courses as any[]).length})
         </h2>
         <div className="ms-auto">
           <FormCheck
@@ -148,18 +142,10 @@ export default function DashboardPage() {
 
       <h5>
         New Course
-        <button
-          className="btn btn-primary float-end"
-          id="wd-add-new-course-click"
-          onClick={onAddNewCourse}
-        >
+        <button className="btn btn-primary float-end" id="wd-add-new-course-click" onClick={onAddNewCourse}>
           Add
         </button>
-        <button
-          className="btn btn-warning float-end me-2"
-          onClick={onUpdateCourse}
-          id="wd-update-course-click"
-        >
+        <button className="btn btn-warning float-end me-2" onClick={onUpdateCourse} id="wd-update-course-click">
           Update
         </button>
       </h5>
@@ -179,80 +165,66 @@ export default function DashboardPage() {
 
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
-          {(courses as any[]).map((course: any) => {
-            const enrolled = isEnrolled(course._id);
+          {(courses as any[]).map((c: any) => {
+            const enrolled = isEnrolled(c._id);
             return (
-              <Col
-                key={course._id}
-                className="wd-dashboard-course"
-                style={{ width: "300px" }}
-              >
+              <Col key={c._id} className="wd-dashboard-course" style={{ width: "300px" }}>
                 <Card>
-                  <Link
-                    href={`/Courses/${course._id}`}
-                    className="wd-dashboard-course-link text-decoration-none text-dark"
-                  >
-                    <Card.Img
-                      as={Image}
-                      src={getCourseImage(course)}
-                      alt={getCourseTitle(course)}
-                      width={300}
-                      height={160}
-                    />
-                    <Card.Body>
-                      <Card.Title style={{ color: "#000080", fontWeight: "bold" }}>
-                        {getCourseTitle(course)}
-                      </Card.Title>
-                      <Card.Text className="text-dark" style={{ height: "100px" }}>
-                        {getCourseSubtitle(course)}
-                      </Card.Text>
-
-                      <Button variant="primary">Go</Button>
-
-                      {showAllCourses && (
-                        <Button
-                          variant={enrolled ? "secondary" : "success"}
-                          className="ms-2"
-                          onClick={(event) => {
-                            event.preventDefault();
-                            onToggleEnrollment(course._id);
-                          }}
-                        >
-                          {enrolled ? "Unenroll" : "Enroll"}
-                        </Button>
-                      )}
-
-                      <button
-                        className="btn btn-danger float-end"
-                        id="wd-delete-course-click"
-                        style={{ marginLeft: "0.5rem" }}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          onDeleteCourse(String(course._id));
-                        }}
-                      >
-                        Delete
-                      </button>
-
-                      <button
-                        id="wd-edit-course-click"
-                        className="btn btn-warning float-end"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          setCourse({
-                            _id: course._id,
-                            name: course.name ?? course.title,
-                            description: course.description ?? course.subtitle,
-                            image: course.image ?? placeholderImage,
-                            title: course.title ?? course.name,
-                            subtitle: course.subtitle ?? course.description,
-                          });
-                        }}
-                      >
-                        Edit
-                      </button>
-                    </Card.Body>
+                  <Link href={`/Courses/${c._id}/Home`} className="text-decoration-none text-dark">
+                    <Card.Img as={Image} src={getCourseImage(c)} alt={getCourseTitle(c)} width={300} height={160} />
                   </Link>
+
+                  <Card.Body>
+                    <Card.Title style={{ color: "#000080", fontWeight: "bold" }}>
+                      <Link href={`/Courses/${c._id}/Home`} className="text-decoration-none" style={{ color: "#000080" }}>
+                        {getCourseTitle(c)}
+                      </Link>
+                    </Card.Title>
+
+                    <Card.Text className="text-dark" style={{ height: "100px" }}>
+                      {getCourseSubtitle(c)}
+                    </Card.Text>
+
+                    <Button variant="primary" onClick={() => router.push(`/Courses/${c._id}/Home`)}>
+                      Go
+                    </Button>
+
+                    {showAllCourses && (
+                      <Button
+                        variant={enrolled ? "secondary" : "success"}
+                        className="ms-2"
+                        onClick={() => onToggleEnrollment(c._id)}
+                      >
+                        {enrolled ? "Unenroll" : "Enroll"}
+                      </Button>
+                    )}
+
+                    <button
+                      className="btn btn-danger float-end"
+                      id="wd-delete-course-click"
+                      style={{ marginLeft: "0.5rem" }}
+                      onClick={() => onDeleteCourse(String(c._id))}
+                    >
+                      Delete
+                    </button>
+
+                    <button
+                      id="wd-edit-course-click"
+                      className="btn btn-warning float-end"
+                      onClick={() =>
+                        setCourse({
+                          _id: c._id,
+                          name: c.name ?? c.title,
+                          description: c.description ?? c.subtitle,
+                          image: c.image ?? placeholderImage,
+                          title: c.title ?? c.name,
+                          subtitle: c.subtitle ?? c.description,
+                        })
+                      }
+                    >
+                      Edit
+                    </button>
+                  </Card.Body>
                 </Card>
               </Col>
             );
