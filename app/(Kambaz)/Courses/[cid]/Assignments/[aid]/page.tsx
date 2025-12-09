@@ -6,7 +6,7 @@ import { Form, Row, Col, Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../../store";
 import { setAssignments } from "../reducer";
-import * as client from "../client";
+import * as client from "../../../client";
 
 const getTitle = (a: any) => a?.title ?? a?.name ?? "Untitled";
 const getPoints = (a: any) => a?.points ?? a?.pts ?? 0;
@@ -59,7 +59,9 @@ export default function AssignmentEditorPage() {
   const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
   const assignment = (assignments as any[]).find((a: any) => String(a._id) === String(aid));
 
-  const [assignees, setAssignees] = useState<string[]>(assignment ? getAssignTo(assignment) : ["Everyone"]);
+  const [assignees, setAssignees] = useState<string[]>(
+    assignment ? getAssignTo(assignment) : ["Everyone"]
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -97,8 +99,7 @@ export default function AssignmentEditorPage() {
     }
   }, [assignment?._id]);
 
-  const removeChip = (idx: number) =>
-    setAssignees((prev) => prev.filter((_, i) => i !== idx));
+  const removeChip = (idx: number) => setAssignees((prev) => prev.filter((_, i) => i !== idx));
 
   const addChip = (value: string) => {
     const v = value.trim();
@@ -140,7 +141,8 @@ export default function AssignmentEditorPage() {
       editing: false,
     };
 
-    await client.updateAssignment(updated);
+    const { editing, ...assignmentUpdates } = updated;
+    await client.updateAssignment(assignmentUpdates);
 
     const newAssignments = (assignments as any[]).map((a: any) =>
       a._id === updated._id ? updated : a
@@ -154,7 +156,9 @@ export default function AssignmentEditorPage() {
     if (!assignment) return;
 
     await client.deleteAssignment(assignment._id);
-    dispatch(setAssignments((assignments as any[]).filter((a: any) => a._id !== assignment._id)));
+    dispatch(
+      setAssignments((assignments as any[]).filter((a: any) => a._id !== assignment._id))
+    );
     router.push(`/Courses/${cid}/Assignments`);
   };
 
@@ -260,11 +264,41 @@ The Kanbas application should include a link to navigate back to the landing pag
               </Form.Select>
 
               <div className="fw-semibold mt-3 mb-2">Online Entry Options</div>
-              <Form.Check id="wd-text-entry" type="checkbox" label="Text Entry" ref={textEntryRef} defaultChecked={initialOptions.textEntry} />
-              <Form.Check id="wd-website-url" type="checkbox" label="Website URL" ref={websiteUrlRef} defaultChecked={initialOptions.websiteUrl} />
-              <Form.Check id="wd-media-recordings" type="checkbox" label="Media Recordings" ref={mediaRecordingsRef} defaultChecked={initialOptions.mediaRecordings} />
-              <Form.Check id="wd-student-annotation" type="checkbox" label="Student Annotation" ref={studentAnnotationRef} defaultChecked={initialOptions.studentAnnotation} />
-              <Form.Check id="wd-file-upload" type="checkbox" label="File Uploads" ref={fileUploadsRef} defaultChecked={initialOptions.fileUploads} />
+              <Form.Check
+                id="wd-text-entry"
+                type="checkbox"
+                label="Text Entry"
+                ref={textEntryRef}
+                defaultChecked={initialOptions.textEntry}
+              />
+              <Form.Check
+                id="wd-website-url"
+                type="checkbox"
+                label="Website URL"
+                ref={websiteUrlRef}
+                defaultChecked={initialOptions.websiteUrl}
+              />
+              <Form.Check
+                id="wd-media-recordings"
+                type="checkbox"
+                label="Media Recordings"
+                ref={mediaRecordingsRef}
+                defaultChecked={initialOptions.mediaRecordings}
+              />
+              <Form.Check
+                id="wd-student-annotation"
+                type="checkbox"
+                label="Student Annotation"
+                ref={studentAnnotationRef}
+                defaultChecked={initialOptions.studentAnnotation}
+              />
+              <Form.Check
+                id="wd-file-upload"
+                type="checkbox"
+                label="File Uploads"
+                ref={fileUploadsRef}
+                defaultChecked={initialOptions.fileUploads}
+              />
             </div>
           </Col>
         </Row>
@@ -323,7 +357,9 @@ The Kanbas application should include a link to navigate back to the landing pag
                     <Form.Control
                       ref={availFromRef}
                       type="datetime-local"
-                      defaultValue={toInputDateTime(assignment ? getAvailableFrom(assignment) : "")}
+                      defaultValue={toInputDateTime(
+                        assignment ? getAvailableFrom(assignment) : ""
+                      )}
                     />
                   </Form.Group>
                 </Col>
@@ -333,7 +369,9 @@ The Kanbas application should include a link to navigate back to the landing pag
                     <Form.Control
                       ref={availUntilRef}
                       type="datetime-local"
-                      defaultValue={toInputDateTime(assignment ? getAvailableUntil(assignment) : "")}
+                      defaultValue={toInputDateTime(
+                        assignment ? getAvailableUntil(assignment) : ""
+                      )}
                     />
                   </Form.Group>
                 </Col>

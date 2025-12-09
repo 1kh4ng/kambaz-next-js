@@ -1,23 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Button, InputGroup, FormControl, Table } from "react-bootstrap";
-import { FaMagnifyingGlass, FaCircleUser } from "react-icons/fa6";
-import people from "@/app/data/people.json";
-
-type Person = {
-  course: number;
-  name: string;
-  loginId: string;
-  section: string;
-  role: "STUDENT" | "TA";
-  lastActivity: string;
-  totalActivity: string;
-};
+import { Button, InputGroup, FormControl } from "react-bootstrap";
+import { FaMagnifyingGlass } from "react-icons/fa6";
+import PeopleTable from "./Table";
+import * as client from "../../client";
 
 export default function PeoplePage() {
   const { cid } = useParams<{ cid: string }>();
-  const rows = (people as Person[]).filter(p => String(p.course) === cid);
+  const [users, setUsers] = useState<any[]>([]);
+
+  const fetchUsers = async () => {
+    const users = await client.findUsersForCourse(cid);
+    setUsers(users);
+  };
+
+  useEffect(() => {
+    if (cid) fetchUsers();
+  }, [cid]);
 
   return (
     <div id="wd-people" className="container-fluid">
@@ -32,46 +33,13 @@ export default function PeoplePage() {
         </div>
 
         <div className="ms-auto">
-          <Button variant="danger" size="lg">+ People</Button>
+          <Button variant="danger" size="lg">
+            + People
+          </Button>
         </div>
       </div>
 
-      <Table striped hover borderless>
-        <thead className="bg-white">
-          <tr>
-            <th>Name</th>
-            <th>Login ID</th>
-            <th>Section</th>
-            <th>Role</th>
-            <th>Last Activity</th>
-            <th>Total Activity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((p) => (
-            <tr key={p.loginId}>
-              <td className="align-middle">
-                <div className="d-flex align-items-center gap-2">
-                  <div
-                    className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                    style={{ width: 36, height: 36, background: "#e7e9eb", color: "#6c757d" }}
-                  >
-                    <FaCircleUser />
-                  </div>
-                  <div className="d-flex flex-column">
-                    <span className="fw-semibold text-dark">{p.name}</span>
-                  </div>
-                </div>
-              </td>
-              <td className="align-middle">{p.loginId}</td>
-              <td className="align-middle">{p.section}</td>
-              <td className="align-middle">{p.role}</td>
-              <td className="align-middle">{p.lastActivity}</td>
-              <td className="align-middle">{p.totalActivity}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <PeopleTable users={users} fetchUsers={fetchUsers} />
     </div>
   );
 }

@@ -2,23 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import {
-  ListGroup,
-  ListGroupItem,
-  FormControl,
-} from "react-bootstrap";
+import { ListGroup, ListGroupItem, FormControl } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../store";
 import ModulesControls from "./ModulesControls";
 import GreenCheckmark from "./GreenCheckmark";
-import {
-  FaGripVertical,
-  FaEllipsisVertical,
-  FaPlus,
-  FaPencil,
-  FaTrash,
-} from "react-icons/fa6";
-import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
+import { FaGripVertical, FaEllipsisVertical, FaPlus, FaPencil, FaTrash } from "react-icons/fa6";
+import { setModules, editModule, updateModule } from "./reducer";
 import * as client from "../../client";
 
 const Grip = () => (
@@ -31,9 +21,7 @@ export default function ModulesPage() {
   const { cid } = useParams<{ cid: string }>();
   const dispatch = useDispatch();
 
-  const { modules } = useSelector(
-    (state: RootState) => state.modulesReducer
-  );
+  const { modules } = useSelector((state: RootState) => state.modulesReducer);
 
   const [moduleName, setModuleName] = useState("");
 
@@ -56,23 +44,21 @@ export default function ModulesPage() {
   };
 
   const onRemoveModule = async (moduleId: string) => {
-    await client.deleteModule(moduleId);
+    if (!cid) return;
+    await client.deleteModule(cid as string, moduleId);
     dispatch(setModules((modules as any[]).filter((m: any) => m._id !== moduleId)));
   };
 
   const onUpdateModule = async (module: any) => {
-    await client.updateModule(module);
-    const newModules = (modules as any[]).map((m: any) => m._id === module._id ? module : m);
+    if (!cid) return;
+    await client.updateModule(cid as string, module);
+    const newModules = (modules as any[]).map((m: any) => (m._id === module._id ? module : m));
     dispatch(setModules(newModules));
   };
 
   return (
     <div id="wd-modules-page" className="container-fluid">
-      <ModulesControls
-        moduleName={moduleName}
-        setModuleName={setModuleName}
-        addModule={onCreateModuleForCourse}
-      />
+      <ModulesControls moduleName={moduleName} setModuleName={setModuleName} addModule={onCreateModuleForCourse} />
       <br />
       <br />
       <br />
@@ -80,10 +66,7 @@ export default function ModulesPage() {
 
       <ListGroup className="rounded-0" id="wd-modules">
         {(modules as any[]).map((mod: any) => (
-          <ListGroupItem
-            key={mod._id}
-            className="wd-module p-0 mb-5 fs-5 border-gray"
-          >
+          <ListGroupItem key={mod._id} className="wd-module p-0 mb-5 fs-5 border-gray">
             <div className="wd-title p-3 ps-2 bg-secondary d-flex align-items-center">
               <Grip />
               {!mod.editing && <span>{mod.name}</span>}
@@ -111,14 +94,8 @@ export default function ModulesPage() {
               )}
 
               <span className="ms-auto d-inline-flex align-items-center">
-                <FaPencil
-                  className="text-primary me-3"
-                  onClick={() => dispatch(editModule(mod._id))}
-                />
-                <FaTrash
-                  className="text-danger me-3"
-                  onClick={() => onRemoveModule(mod._id)}
-                />
+                <FaPencil className="text-primary me-3" onClick={() => dispatch(editModule(mod._id))} />
+                <FaTrash className="text-danger me-3" onClick={() => onRemoveModule(mod._id)} />
                 <GreenCheckmark />
                 <FaPlus className="ms-3 me-3" />
                 <FaEllipsisVertical />
@@ -127,14 +104,9 @@ export default function ModulesPage() {
 
             <ListGroup className="wd-lessons rounded-0">
               {(mod.lessons ?? []).map((lesson: any, j: number) => (
-                <ListGroupItem
-                  key={lesson._id ?? j}
-                  className="wd-lesson p-3 ps-1 d-flex align-items-center"
-                >
+                <ListGroupItem key={lesson._id ?? j} className="wd-lesson p-3 ps-1 d-flex align-items-center">
                   <Grip />
-                  <span className="flex-grow-1">
-                    {lesson.name ?? lesson.title ?? lesson}
-                  </span>
+                  <span className="flex-grow-1">{lesson.name ?? lesson.title ?? lesson}</span>
                   <span className="d-inline-flex align-items-center">
                     <GreenCheckmark />
                     <FaEllipsisVertical />

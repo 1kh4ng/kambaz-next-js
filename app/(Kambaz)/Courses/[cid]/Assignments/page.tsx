@@ -24,7 +24,7 @@ import GreenCheckmark from "../Modules/GreenCheckmark";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import { setAssignments, updateAssignment, editAssignment } from "./reducer";
-import * as client from "./client";
+import * as client from "../../client";
 
 const Grip = () => (
   <span className="wd-grip text-muted d-inline-flex align-items-center me-2">
@@ -36,7 +36,11 @@ const getTitle = (a: any) => a?.title ?? a?.name ?? "Untitled";
 const getDue = (a: any) => a?.due ?? a?.dueDate ?? a?.due_date ?? "TBD";
 const getPoints = (a: any) => a?.points ?? a?.pts ?? 0;
 const getAvailable = (a: any) =>
-  a?.available ?? a?.availableFrom ?? a?.available_from ?? a?.notAvailableUntil ?? "TBD";
+  a?.available ??
+  a?.availableFrom ??
+  a?.available_from ??
+  a?.notAvailableUntil ??
+  "TBD";
 
 const AssignmentMeta = ({ a }: { a: any }) => (
   <>
@@ -56,7 +60,9 @@ const AssignmentMeta = ({ a }: { a: any }) => (
 export default function AssignmentsPage() {
   const { cid } = useParams<{ cid: string }>();
   const dispatch = useDispatch();
-  const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
+  const { assignments } = useSelector(
+    (state: RootState) => state.assignmentsReducer
+  );
   const [search, setSearch] = useState("");
 
   const fetchAssignments = async () => {
@@ -71,18 +77,26 @@ export default function AssignmentsPage() {
 
   const onCreateAssignment = async () => {
     if (!cid) return;
-    const newAssignment = { title: "New Assignment", course: cid };
-    const assignment = await client.createAssignment(cid as string, newAssignment);
+    const newAssignment = { title: "New Assignment" };
+    const assignment = await client.createAssignmentForCourse(
+      cid as string,
+      newAssignment
+    );
     dispatch(setAssignments([...(assignments as any[]), assignment]));
   };
 
   const onRemoveAssignment = async (assignmentId: string) => {
     await client.deleteAssignment(assignmentId);
-    dispatch(setAssignments((assignments as any[]).filter((a: any) => a._id !== assignmentId)));
+    dispatch(
+      setAssignments(
+        (assignments as any[]).filter((a: any) => a._id !== assignmentId)
+      )
+    );
   };
 
   const onUpdateAssignment = async (assignment: any) => {
-    await client.updateAssignment(assignment);
+    const { editing, ...assignmentUpdates } = assignment;
+    await client.updateAssignment(assignmentUpdates);
     const newAssignments = (assignments as any[]).map((a: any) =>
       a._id === assignment._id ? assignment : a
     );
